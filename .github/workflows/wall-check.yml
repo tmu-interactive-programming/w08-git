@@ -1,0 +1,43 @@
+# Checks class-wall PRs: only wall/<PR author>.txt may change, and the message must be short.
+#
+# Security: pull_request_target runs this workflow and its script from the BASE branch, so a PR
+# can't rewrite the check. The PR's files are only fetched and read as data with git — never
+# executed — and the token is read-only.
+name: wall-check
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, edited]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: wall-check-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  wall-check:
+    name: wall-check
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out the base branch (trusted scripts)
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Fetch the PR head as data
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: git fetch --no-tags origin "+refs/pull/${PR_NUMBER}/head:refs/remotes/pr/head"
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Check the wall file
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          AUTHOR: ${{ github.event.pull_request.user.login }}
+        run: python scripts/check_wall_pr.py "$BASE_SHA" "$HEAD_SHA" "$AUTHOR"

@@ -1,0 +1,14 @@
+{
+  "generated": "2026-10-20T00:00:00Z",
+  "sample": true,
+  "entries": [
+    { "user": "demo-student-01", "message": "第一個 PR 成功！🎉", "time": "2026-10-27T05:12:00Z" },
+    { "user": "demo-student-02", "message": "我負責天氣查詢功能 ☀️", "time": "2026-10-27T05:12:40Z" },
+    { "user": "demo-student-03", "message": "垃圾車提醒 coming soon 🚛", "time": "2026-10-27T05:13:10Z" },
+    { "user": "demo-student-04", "message": "原來 merge 就是按一個按鈕", "time": "2026-10-27T05:13:30Z" },
+    { "user": "demo-student-05", "message": "G3 最強 💪", "time": "2026-10-27T05:14:02Z" },
+    { "user": "demo-student-06", "message": "Hello from 杏春樓！", "time": "2026-10-27T05:14:20Z" },
+    { "user": "demo-student-07", "message": "衝突沒有想像中可怕 😅", "time": "2026-10-27T05:14:55Z" },
+    { "user": "demo-student-08", "message": "希望六張犁的住戶會喜歡我們的 Bot", "time": "2026-10-27T05:15:30Z" }
+  ]
+}

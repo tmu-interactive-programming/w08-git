@@ -1,0 +1,523 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>W11 Git 協作</title>
+  <meta name="description" content="互動程式設計 W11：用 Git 與 GitHub 把七個人的功能合併成同一隻 LINE Bot。">
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M18 10v44M18 22c0 12 28 6 28 22' stroke='%237c5cff' stroke-width='6' fill='none' stroke-linecap='round'/%3E%3Ccircle cx='18' cy='12' r='7' fill='%232f81f7'/%3E%3Ccircle cx='18' cy='52' r='7' fill='%232f81f7'/%3E%3Ccircle cx='46' cy='44' r='7' fill='%2306c755'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="assets/style.css">
+  <script>
+    // Apply the saved theme before first paint (no flash).
+    document.documentElement.className = 'js';
+    try { var t = localStorage.getItem('w08-theme'); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; } catch (e) {}
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到主要內容</a>
+  <div class="scroll-progress" aria-hidden="true"><span id="scroll-bar"></span></div>
+
+  <header class="topbar" id="topbar">
+    <a class="brand" href="#top" aria-label="回到頂端">
+      <svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><path d="M9 5v22M9 11c0 6 14 3 14 11" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="9" cy="6" r="3.5" fill="var(--lane-0)"/><circle cx="9" cy="26" r="3.5" fill="var(--lane-0)"/><circle cx="23" cy="22" r="3.5" fill="var(--line-green)"/></svg>
+      <span>W11 <b>Git 協作</b></span>
+    </a>
+    <nav class="nav" aria-label="章節">
+      <a href="#why" data-nav="why"><i>1</i>為什麼</a>
+      <a href="#concepts" data-nav="concepts"><i>2</i>概念</a>
+      <a href="#sandbox" data-nav="sandbox"><i>3</i>沙盒</a>
+      <a href="#wall" data-nav="wall"><i>4</i>簽名牆</a>
+      <a href="#lab" data-nav="lab"><i>5</i>小組實作</a>
+    </nav>
+    <div class="top-actions">
+      <button class="icon-btn" id="ta-toggle" type="button" aria-pressed="false" title="助教模式（計時器、講稿）">🎓<span class="sr-only">助教模式</span></button>
+      <button class="icon-btn" id="theme-toggle" type="button" title="切換深色／淺色">
+        <svg class="i-sun" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="12" cy="12" r="4.5" fill="currentColor"/><g stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></g></svg>
+        <svg class="i-moon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" fill="currentColor"/></svg>
+        <span class="sr-only">切換主題</span>
+      </button>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- ============ HERO ============ -->
+    <section class="hero" id="top">
+      <div class="hero-bg" aria-hidden="true">
+        <svg id="hero-art" viewBox="0 0 1200 520" preserveAspectRatio="xMidYMid slice"></svg>
+      </div>
+      <div class="hero-inner">
+        <p class="eyebrow">互動程式設計 · Week 11 · 合作軟體開發</p>
+        <h1 class="hero-title">
+          <span class="line">七個人，</span>
+          <span class="line grad">一隻 Bot。</span>
+        </h1>
+        <p class="hero-sub">用 <b>Git</b> 與 <b>GitHub</b> 把每個人在 W07 寫的功能，安全地合併成同一隻 LINE Bot。<br>只要瀏覽器就能完成 —— 教室電腦也可以。</p>
+        <div class="hero-cta">
+          <a class="btn btn-primary" href="#why">開始 <span aria-hidden="true">→</span></a>
+          <a class="btn btn-ghost" href="#lab">直接去小組實作</a>
+        </div>
+        <ol class="agenda" aria-label="今天的 30 分鐘">
+          <li style="--w:3"><a href="#why"><b>3'</b>為什麼要 Git</a></li>
+          <li style="--w:7"><a href="#concepts"><b>7'</b>概念動畫</a></li>
+          <li style="--w:20"><a href="#lab"><b>20'</b>小組實作</a></li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ============ 1 WHY ============ -->
+    <section class="section" id="why" data-seg="why">
+      <div class="wrap">
+        <header class="section-head reveal">
+          <span class="step-no">01</span>
+          <div>
+            <h2>為什麼要 Git？</h2>
+            <p class="lead">上週每個人都寫好了一個功能。這週，要把 <b>7 個人</b>的程式變成 <b>1 隻</b> Bot。用 Email 和雲端硬碟傳檔案會發生什麼事？</p>
+          </div>
+        </header>
+
+        <div class="why-grid">
+          <div class="file-chaos reveal" id="file-chaos" aria-label="混亂的檔案名稱">
+            <div class="chaos-window">
+              <div class="chaos-bar"><span></span><span></span><span></span><em>我的雲端硬碟 › 期末專題</em></div>
+              <ul class="chaos-files" id="chaos-files"></ul>
+            </div>
+            <button class="btn btn-small" type="button" id="chaos-replay">再看一次 ↻</button>
+          </div>
+
+          <div class="pain-cards">
+            <article class="flip reveal" tabindex="0">
+              <div class="flip-inner">
+                <div class="flip-front"><span class="emoji">🤯</span><h3>到底哪一版才能跑？</h3><p>final、final_v2、真的最終…</p><small>點我翻面</small></div>
+                <div class="flip-back"><h3>main 分支</h3><p><b>main</b> 永遠是「可以跑的那一版」。改壞的東西進不來，因為合併前要先通過自動測試，再由 PO 確認。</p></div>
+              </div>
+            </article>
+            <article class="flip reveal" tabindex="0">
+              <div class="flip-inner">
+                <div class="flip-front"><span class="emoji">🕵️</span><h3>誰改了什麼？為什麼？</h3><p>Bot 壞了，沒人知道是誰動的。</p><small>點我翻面</small></div>
+                <div class="flip-back"><h3>commit 歷史</h3><p>每個 <b>commit</b> 都記錄了「誰、什麼時候、改了哪幾行、為什麼」。隨時可以回到任何一版。</p></div>
+              </div>
+            </article>
+            <article class="flip reveal" tabindex="0">
+              <div class="flip-inner">
+                <div class="flip-front"><span class="emoji">🧩</span><h3>7 個人怎麼同時改？</h3><p>複製貼上到同一個 notebook，一定會蓋掉別人的。</p><small>點我翻面</small></div>
+                <div class="flip-back"><h3>branch + Pull Request</h3><p>每個人在自己的 <b>branch</b> 上開發，寫好後開 <b>Pull Request</b> 請隊友看，再合併回 main。</p></div>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <div class="callout reveal">
+          <span class="callout-icon">💡</span>
+          <p><b>Git</b> 是記錄版本的工具（裝在電腦上的程式）；<b>GitHub</b> 是放 Git 專案的網站，加上 Pull Request、Review、自動測試等協作功能。今天大部分的事情在 GitHub 網頁上就能完成。</p>
+        </div>
+
+        <aside class="ta-note"><b>🎓 講稿（3 分鐘）</b>問全班：「上週的功能現在在哪裡？」（Colab、自己的雲端、LINE 傳給組長…）。讓檔案動畫跑完，再翻三張卡片。重點：今天的目標是<em>把 7 個功能合併成 1 隻 Bot</em>，Git 只是工具。</aside>
+      </div>
+    </section>
+
+    <!-- ============ 2 CONCEPTS ============ -->
+    <section class="section alt" id="concepts" data-seg="concepts">
+      <div class="wrap">
+        <header class="section-head reveal">
+          <span class="step-no">02</span>
+          <div>
+            <h2>七個關鍵字，一次看懂</h2>
+            <p class="lead">跟著小美和阿明，看一個 Bot 專案怎麼長大。按「下一步」，或點圖上任何一個圓點看那個 commit 的內容。</p>
+          </div>
+        </header>
+
+        <div class="glossary reveal" id="glossary">
+          <button type="button" data-term="repo"><b>Repo</b><span>專案資料夾＋完整歷史</span></button>
+          <button type="button" data-term="commit"><b>Commit</b><span>一個存檔點（快照）</span></button>
+          <button type="button" data-term="branch"><b>Branch</b><span>平行開發的分支</span></button>
+          <button type="button" data-term="pr"><b>Pull Request</b><span>「請把我的分支合併進去」</span></button>
+          <button type="button" data-term="review"><b>Review</b><span>隊友審查、留言、核准</span></button>
+          <button type="button" data-term="merge"><b>Merge</b><span>把分支合併回 main</span></button>
+          <button type="button" data-term="conflict"><b>Conflict</b><span>兩人改了同一行</span></button>
+        </div>
+
+        <div class="story reveal" id="story">
+          <div class="story-text">
+            <div class="story-meta"><span id="story-count">1 / 10</span><span class="story-actor" id="story-actor"></span></div>
+            <h3 id="story-title"></h3>
+            <p id="story-body"></p>
+            <pre class="story-cmd" id="story-cmd" aria-label="這一步執行的指令"></pre>
+            <div class="story-controls">
+              <button class="btn btn-small btn-ghost" type="button" id="story-prev" aria-label="上一步">← 上一步</button>
+              <button class="btn btn-small btn-primary" type="button" id="story-next" aria-label="下一步">下一步 →</button>
+              <button class="icon-btn small" type="button" id="story-play" aria-label="自動播放" title="自動播放">▶</button>
+            </div>
+            <div class="story-dots" id="story-dots" role="tablist" aria-label="故事進度"></div>
+          </div>
+          <div class="story-visual">
+            <div class="graph-scroll" id="story-graph"></div>
+            <div class="story-side" id="story-side"></div>
+          </div>
+        </div>
+
+        <aside class="ta-note"><b>🎓 講稿（7 分鐘）</b>每一步停一下，指著圖說。第 6～7 步強調：<em>各自的檔案 → 不會衝突</em>，這就是為什麼每個人的功能放在 <code>features/自己的檔案.py</code>。第 8～9 步示範衝突長什麼樣子，不用怕。</aside>
+      </div>
+    </section>
+
+    <!-- ============ 3 SANDBOX ============ -->
+    <section class="section" id="sandbox" data-seg="sandbox">
+      <div class="wrap">
+        <header class="section-head reveal">
+          <span class="step-no">03</span>
+          <div>
+            <h2>Git 沙盒：自己動手試 <small class="muted">（選讀・課後）</small></h2>
+            <p class="lead">這是一個在瀏覽器裡的「假」Git，打錯也不會怎樣。完成 5 個挑戰，或輸入 <code>help</code> 自由探索。</p>
+          </div>
+        </header>
+
+        <div class="challenges reveal" id="challenges"></div>
+
+        <div class="sandbox reveal">
+          <div class="term-card">
+            <div class="term-bar">
+              <span class="dots"><i></i><i></i><i></i></span>
+              <span class="term-title">bash — your-team/linebot</span>
+              <button class="link-btn" type="button" id="sb-reset" title="重設沙盒">↻ 重設</button>
+            </div>
+            <div class="term-out" id="term-out" role="log" aria-live="polite"></div>
+            <form class="term-in" id="term-form" autocomplete="off">
+              <label for="term-input" class="prompt" id="term-prompt">(main) $</label>
+              <input id="term-input" type="text" spellcheck="false" autocapitalize="off" autocorrect="off" enterkeyhint="send" placeholder="輸入指令，例如 git status">
+            </form>
+            <div class="quick-keys" id="quick-keys" aria-label="快速輸入">
+              <button type="button" data-insert="git status">status</button>
+              <button type="button" data-insert="git add .">add .</button>
+              <button type="button" data-insert='git commit -m ""' data-caret="-1">commit -m</button>
+              <button type="button" data-insert="git switch -c feature/">switch -c</button>
+              <button type="button" data-insert="git merge ">merge</button>
+              <button type="button" data-insert="git log --oneline">log</button>
+              <button type="button" data-insert="ls">ls</button>
+            </div>
+          </div>
+
+          <div class="sb-side">
+            <div class="card graph-card">
+              <div class="card-head"><h3>Commit 圖</h3><span class="legend"><i class="lg-head"></i>HEAD <i class="lg-remote"></i>GitHub 上的分支</span></div>
+              <div class="graph-scroll" id="sb-graph"></div>
+            </div>
+            <div class="card files-card">
+              <div class="card-head"><h3>檔案</h3><small>點檔案可以編輯</small></div>
+              <ul class="file-list" id="sb-files"></ul>
+            </div>
+          </div>
+        </div>
+
+        <aside class="ta-note"><b>🎓 講稿（課堂不做）</b>30 分鐘版本跳過，課後自己玩。投影示範挑戰 1，其餘讓同學自己玩；做完的人幫旁邊的人。卡住時按挑戰卡上的「提示」，可以一鍵填入指令。進度存在瀏覽器裡。</aside>
+      </div>
+    </section>
+
+    <!-- ============ 4 WALL ============ -->
+    <section class="section alt" id="wall" data-seg="wall">
+      <div class="wrap">
+        <header class="section-head reveal">
+          <span class="step-no">04</span>
+          <div>
+            <h2>全班簽名牆 <small class="muted">（選讀・課後）</small></h2>
+            <p class="lead">你的第一個 Pull Request！在 <a class="repo-link" data-link="site-repo" href="#" target="_blank" rel="noopener">網站的 repo</a> 新增一個只屬於你的檔案 <code>wall/你的帳號.txt</code>，合併之後，你的留言就會出現在下面這面牆上。</p>
+          </div>
+        </header>
+
+        <div class="wall-layout">
+          <div class="card wall-steps reveal">
+            <ol class="steps">
+              <li><b>填寫</b>你的 GitHub 帳號和一句話（不要放真實姓名、學號、電話）。</li>
+              <li>按 <b>「到 GitHub 建立檔案」</b>，檔名和內容都已經幫你填好。</li>
+              <li>右上角綠色 <b>Commit changes…</b> → 選 <b>Create a new branch for this commit and start a pull request</b> → <b>Propose changes</b>。</li>
+              <li>按 <b>Create pull request</b>。等 <code>wall-check</code> 出現 ✅。</li>
+              <li>按 <b>Merge pull request</b> → <b>Confirm merge</b>。約 1 分鐘後，你的卡片會飛上牆！ 🎉</li>
+            </ol>
+            <form class="wall-form" id="wall-form">
+              <label>GitHub 帳號
+                <span class="input-prefix"><i>@</i><input id="wall-user" name="user" type="text" required maxlength="39" placeholder="octocat" autocomplete="off" spellcheck="false"></span>
+              </label>
+              <label>想說的話 <small id="wall-count">0 / 80</small>
+                <input id="wall-msg" name="msg" type="text" required maxlength="80" placeholder="例：我負責垃圾車提醒功能 🚛" autocomplete="off">
+              </label>
+              <p class="form-hint" id="wall-hint" role="status"></p>
+              <div class="wall-preview" id="wall-preview" aria-hidden="true"></div>
+              <a class="btn btn-primary" id="wall-go" href="#" target="_blank" rel="noopener" aria-disabled="true">到 GitHub 建立檔案 ↗</a>
+            </form>
+            <details class="mini-faq">
+              <summary>出現「You need to fork this repository」？</summary>
+              <p>代表你還沒加入課程的 GitHub 組織（或還沒接受邀請）。到 Email 收件匣找 GitHub 邀請信並接受，或直接按 <b>Fork</b> 繼續 —— 一樣可以開 PR，只是要請助教幫你合併。</p>
+            </details>
+          </div>
+
+          <div class="wall-board reveal">
+            <div class="wall-stats">
+              <div class="ring" id="wall-ring" style="--p:0"><span><b id="wall-n">0</b><small>/ 42</small></span></div>
+              <div>
+                <h3>已經上牆的同學</h3>
+                <p class="muted" id="wall-status">載入中…</p>
+              </div>
+            </div>
+            <ul class="wall-cards" id="wall-cards" aria-live="polite"></ul>
+          </div>
+        </div>
+
+        <aside class="ta-note"><b>🎓 講稿（課堂不做）</b>30 分鐘版本跳過；時間多的話可以投影示範 2 分鐘。先用自己的帳號示範一次完整流程（投影）。常見卡關：沒接受組織邀請（→ 會被要求 fork）、檔名打錯（wall-check 會 ❌ 並說明原因）。PR 合併後 Pages 部署大約 1 分鐘，牆每 20 秒自動更新。</aside>
+      </div>
+    </section>
+
+    <!-- ============ 5 LAB ============ -->
+    <section class="section" id="lab" data-seg="lab">
+      <div class="wrap">
+        <header class="section-head reveal">
+          <span class="step-no">05</span>
+          <div>
+            <h2>小組實作：把功能合併進 Bot</h2>
+            <p class="lead">每個人把 W07 的功能做成 <code>features/你的功能.py</code>，開 PR → CI ✅ → PO 合併。先選你的組別：</p>
+          </div>
+        </header>
+
+        <div class="team-picker reveal" id="team-picker" role="radiogroup" aria-label="選擇組別"></div>
+        <div class="team-links reveal" id="team-links">
+          <a data-link="repo" href="#" target="_blank" rel="noopener"><span>📁</span>小組 repo</a>
+          <a data-link="pulls" href="#" target="_blank" rel="noopener"><span>🔀</span>Pull requests</a>
+          <a data-link="actions" href="#" target="_blank" rel="noopener"><span>✅</span>CI 測試結果</a>
+          <a data-link="dev" href="#" target="_blank" rel="noopener"><span>⌨️</span>github.dev 編輯器</a>
+          <a data-link="colab" href="#" target="_blank" rel="noopener"><span>🚀</span>在 Colab 執行 Bot</a>
+        </div>
+
+        <div class="lab-grid">
+          <div class="lab-main">
+            <!-- Track tabs -->
+            <div class="card track-card reveal">
+              <div class="tabs" role="tablist" aria-label="使用的工具">
+                <button role="tab" type="button" id="tab-browser" aria-controls="panel-browser" aria-selected="true">🌐 瀏覽器 <small>推薦</small></button>
+                <button role="tab" type="button" id="tab-colab" aria-controls="panel-colab" aria-selected="false" tabindex="-1">📓 Colab</button>
+                <button role="tab" type="button" id="tab-codespaces" aria-controls="panel-codespaces" aria-selected="false" tabindex="-1">☁️ Codespaces</button>
+                <button role="tab" type="button" id="tab-local" aria-controls="panel-local" aria-selected="false" tabindex="-1">💻 本機 Git</button>
+              </div>
+
+              <div class="tab-panel" role="tabpanel" id="panel-browser" aria-labelledby="tab-browser">
+                <p class="muted">只需要瀏覽器，教室電腦就能做。<b>方法 A</b> 最簡單；喜歡 VS Code 介面的人可以用 <b>方法 B</b>。</p>
+                <h4>方法 A：GitHub 網頁</h4>
+                <ol class="steps">
+                  <li>用右邊的<b>功能檔產生器</b>填好資料，按 <b>「在 GitHub 建立這個檔案」</b>（會開啟已填好的新檔案頁面）。<br><small class="muted">或手動：小組 repo → <b>Add file</b> → <b>Create new file</b>，檔名輸入 <code>features/你的功能.py</code>，貼上程式碼。</small></li>
+                  <li>按 <b>Commit changes…</b>。因為 main 受保護，選 <b>Create a new branch for this commit and start a pull request</b>，分支名稱改成 <code>feature/你的功能</code> → <b>Propose changes</b>。</li>
+                  <li>把 PR 樣板填完（<b>AI 使用聲明必填</b>）→ <b>Create pull request</b>。</li>
+                  <li>等 CI 出現 ✅，在組內告訴 PO「我的 PR 好了」。</li>
+                  <li>要修改？到 PR 的 <b>Files changed</b> → 檔案右上角 <b>⋯</b> → <b>Edit file</b>，commit 到<b>同一個分支</b>，PR 會自動更新。</li>
+                </ol>
+                <h4>方法 B：github.dev（按 <kbd>.</kbd>）</h4>
+                <ol class="steps">
+                  <li>在小組 repo 頁面按鍵盤 <kbd>.</kbd>（句號），會開啟線上 VS Code。</li>
+                  <li>左下角點 <code>main</code> → <b>Create new branch…</b> → 輸入 <code>feature/你的功能</code>。</li>
+                  <li>在 <code>features</code> 資料夾按右鍵 → <b>New File…</b>，貼上程式碼。</li>
+                  <li>左側 <b>Source Control</b>（分支圖示）→ 輸入 commit 訊息 → <b>Commit &amp; Push</b>。</li>
+                  <li>回到 GitHub repo 頁面，黃色提示列按 <b>Compare &amp; pull request</b>。</li>
+                </ol>
+              </div>
+
+              <div class="tab-panel" role="tabpanel" id="panel-colab" aria-labelledby="tab-colab" hidden>
+                <p class="muted">選用。Colab 用來<b>執行</b>合併後的整組 Bot（和 W06 一樣用 Dev Tunnel），不是用來開 PR。</p>
+                <ol class="steps">
+                  <li>按上方 <b>🚀 在 Colab 執行 Bot</b>（開啟小組 repo 裡的 <code>run_in_colab.ipynb</code>）。</li>
+                  <li>步驟 0 的 <code>REPO_URL</code> 填你們組的 repo 網址，執行。</li>
+                  <li>步驟 1 會安裝套件並跑測試；步驟 2 可以<b>不用 LINE</b> 直接測試：輸入「功能」看看大家的功能都在不在。</li>
+                  <li>步驟 3～5 和 W06 相同：Dev Tunnel → 貼上 secret / token（用 getpass，不會存檔）→ 啟動。</li>
+                  <li>有新的 PR 合併？停止步驟 5，重跑步驟 0 和 5 就是最新版。</li>
+                </ol>
+                <div class="callout warn"><span class="callout-icon">🔐</span><p>Channel secret 和 access token <b>永遠不要</b>寫進程式碼或 commit。repo 是公開的，任何人都看得到。</p></div>
+              </div>
+
+              <div class="tab-panel" role="tabpanel" id="panel-codespaces" aria-labelledby="tab-codespaces" hidden>
+                <p class="muted">選用。在雲端開一個有終端機的 VS Code，可以跑測試、用真正的 git 指令。若無法建立（帳號額度或組織設定），請改用瀏覽器方法。</p>
+                <ol class="steps">
+                  <li>小組 repo → 綠色 <b>Code</b> → <b>Codespaces</b> → <b>Create codespace on main</b>。</li>
+                  <li>在終端機輸入：</li>
+                </ol>
+                <pre class="code" data-copy><code>git switch -c feature/你的功能
+pip install -r requirements.txt
+# 在 features/ 新增你的檔案後：
+python -m pytest            # 跑測試
+python app.py --local       # 在終端機和 Bot 聊天
+git add features/你的功能.py
+git commit -m "新增：你的功能"
+git push -u origin feature/你的功能
+gh pr create --fill         # 或回到 GitHub 網頁開 PR</code></pre>
+                <p class="muted">用完記得到 <a href="https://github.com/codespaces" target="_blank" rel="noopener">github.com/codespaces</a> 停止或刪除，節省免費額度。</p>
+              </div>
+
+              <div class="tab-panel" role="tabpanel" id="panel-local" aria-labelledby="tab-local" hidden>
+                <p class="muted">選用。自己的電腦已經裝好 Git 與 Python 3.10+ 的同學。</p>
+                <pre class="code" data-copy><code data-team-template>git clone https://github.com/{org}/{repo}.git
+cd {repo}
+git switch -c feature/你的功能
+pip install -r requirements.txt
+# 在 features/ 新增你的檔案後：
+python -m pytest
+python app.py --local
+git add features/你的功能.py
+git commit -m "新增：你的功能"
+git push -u origin feature/你的功能</code></pre>
+                <p class="muted">push 之後，終端機會印出一個開 PR 的網址；或到 GitHub repo 頁面按 <b>Compare &amp; pull request</b>。第一次 push 需要登入，可以用 <a href="https://cli.github.com/" target="_blank" rel="noopener">GitHub CLI</a> 的 <code>gh auth login</code>，或 GitHub Desktop。</p>
+              </div>
+            </div>
+
+            <!-- Role checklists -->
+            <div class="card roles-card reveal">
+              <div class="card-head">
+                <h3>我的任務清單</h3>
+                <button class="link-btn" type="button" id="roles-reset">重設</button>
+              </div>
+              <div class="progress" aria-hidden="true"><span id="roles-bar"></span></div>
+              <p class="muted small" id="roles-progress">0 / 0 完成</p>
+              <div class="role-tabs" role="tablist" aria-label="角色" id="role-tabs"></div>
+              <ul class="checklist" id="role-list"></ul>
+            </div>
+          </div>
+
+          <div class="lab-side">
+            <!-- Feature generator -->
+            <div class="card gen-card reveal" id="generator">
+              <div class="card-head"><h3>🧩 功能檔產生器</h3></div>
+              <form class="gen-form" id="gen-form" autocomplete="off">
+                <label>功能名稱 <input name="name" type="text" value="垃圾車時間" maxlength="30"></label>
+                <label>GitHub 帳號 <span class="input-prefix"><i>@</i><input name="author" type="text" placeholder="octocat" maxlength="39" spellcheck="false"></span></label>
+                <label>檔名 <span class="input-suffix"><i class="pre">features/</i><input name="file" type="text" value="garbage_truck" maxlength="40" spellcheck="false"><i>.py</i></span></label>
+                <label>關鍵字 <small>（用逗號分隔）</small><input name="keywords" type="text" value="垃圾車, 倒垃圾"></label>
+                <label>回覆內容 <small>（一行一則訊息，最多 5 則）</small><textarea name="reply" rows="3">🚛 今晚 7:30 在 A 棟門口收垃圾
+♻️ 週二、四、六收回收</textarea></label>
+              </form>
+              <ul class="gen-checks" id="gen-checks" aria-live="polite"></ul>
+              <div class="code-wrap">
+                <pre class="code" id="gen-code"><code></code></pre>
+                <button class="copy-btn" type="button" data-copy-target="gen-code">複製</button>
+              </div>
+              <a class="btn btn-primary block" id="gen-github" href="#" target="_blank" rel="noopener">在 GitHub 建立這個檔案 ↗</a>
+              <p class="muted small">把 <code>handle()</code> 裡面換成你 W07 的程式邏輯。<code>text</code> 是使用者輸入的文字。</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- FAQ -->
+        <div class="faq reveal">
+          <h3>🛟 卡住了？</h3>
+          <details>
+            <summary><span class="badge red">❌</span> PR 上的 CI 測試是紅色的</summary>
+            <p>點 <b>Details</b> 看錯誤訊息（是中文的）。最常見：<code>AUTHOR</code> 沒改成自己的帳號、<code>handle</code> 少了參數 <code>(text, user_id)</code>、沒有回傳 <code>list</code>、關鍵字和隊友重複（訊息會說「被誰搶走了」）。在同一個分支上修正後 commit，CI 會自動重跑。</p>
+          </details>
+          <details>
+            <summary><span class="badge amber">⚠️</span> 「This branch has conflicts that must be resolved」</summary>
+            <p>你和別人改到同一個檔案的同一個地方（通常是動到了不是自己的檔案）。按 <b>Resolve conflicts</b>，在網頁編輯器裡找到 <code>&lt;&lt;&lt;&lt;&lt;&lt;&lt;</code>、<code>=======</code>、<code>&gt;&gt;&gt;&gt;&gt;&gt;&gt;</code>，留下正確的內容、刪掉這三行標記 → <b>Mark as resolved</b> → <b>Commit merge</b>。不確定就請 PO 或助教一起看。</p>
+          </details>
+          <details>
+            <summary><span class="badge red">🚫</span> push 被拒絕：「protected branch」</summary>
+            <p>main 受保護，不能直接 push 或 commit。這是故意的！改用新的分支（<code>feature/…</code>），然後開 Pull Request。</p>
+          </details>
+          <details>
+            <summary><span class="badge blue">🔍</span> 找不到「Compare &amp; pull request」按鈕</summary>
+            <p>到 repo 的 <b>Pull requests</b> 分頁 → <b>New pull request</b> → <b>compare:</b> 選你的 <code>feature/…</code> 分支 → <b>Create pull request</b>。</p>
+          </details>
+          <details>
+            <summary><span class="badge blue">✉️</span> 我沒收到組織邀請／看不到小組 repo</summary>
+            <p>到 <a data-link="invitation" href="#" target="_blank" rel="noopener">組織邀請頁面</a> 接受邀請（要先登入 GitHub）。還是沒有？請跟助教確認你的 GitHub 帳號有沒有登記正確。</p>
+          </details>
+          <details>
+            <summary><span class="badge amber">✋</span> 我不小心改到別人的檔案</summary>
+            <p>在 PR 的 <b>Files changed</b> 找到那個檔案 → 右上角 <b>⋯</b> → <b>Edit file</b> 改回原本的內容，或請 PO 先不要合併、留言提醒你。只動 <code>features/自己的檔案.py</code> 就不會有這個問題。</p>
+          </details>
+          <details>
+            <summary><span class="badge red">🔑</span> 我不小心把 token 放進 commit 了！</summary>
+            <p>立刻到 LINE Developers 把 Channel access token <b>重新發行（Reissue）</b>，舊的就失效了；再告訴助教。從歷史中刪掉不夠 —— 公開 repo 可能已經被別人看到。</p>
+          </details>
+          <details>
+            <summary><span class="badge blue">🤖</span> 合併了，但 LINE Bot 沒有反應</summary>
+            <p>Colab 要重跑步驟 0（拿最新的程式）和步驟 5（重新啟動）。也檢查 Dev Tunnel 網址有沒有變、LINE Developers 的 Webhook URL 有沒有更新、Use webhook 有沒有開。</p>
+          </details>
+        </div>
+
+        <aside class="ta-note"><b>🎓 講稿（20 分鐘）</b>先投影示範一次完整流程（3 分鐘）。3～15 分鐘：作者建立檔案、開 PR、修到 CI ✅。最後 5 分鐘：PO 合併，有筆電的組在 Colab 跑步驟 2 確認「功能」選單出現每個人的名字。做不完的回家繼續。隊友互相 Review 是加分項，不強制。</aside>
+      </div>
+    </section>
+
+    <!-- ============ CHEATSHEET ============ -->
+    <section class="section alt" id="cheatsheet">
+      <div class="wrap">
+        <header class="section-head reveal">
+          <span class="step-no">★</span>
+          <div><h2>小抄：指令 ↔ GitHub 按鈕</h2><p class="lead">同一件事，有指令和網頁兩種做法。</p></div>
+        </header>
+        <div class="cheat-grid reveal">
+          <div class="cheat"><code>git clone</code><span>Code → 下載整個 repo</span></div>
+          <div class="cheat"><code>git switch -c feature/x</code><span>分支選單 → 輸入新名稱 → Create branch</span></div>
+          <div class="cheat"><code>git add + git commit</code><span>編輯檔案 → Commit changes</span></div>
+          <div class="cheat"><code>git push</code><span>（網頁上 commit 就已經在 GitHub 了）</span></div>
+          <div class="cheat"><code>gh pr create</code><span>Compare &amp; pull request</span></div>
+          <div class="cheat"><code>git merge</code><span>Merge pull request</span></div>
+          <div class="cheat"><code>git pull</code><span>（Colab 步驟 0 會幫你做）</span></div>
+          <div class="cheat"><code>git log</code><span>repo 頁面 → 🕒 commits</span></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>互動程式設計（課號 19755）· W11 合作軟體開發 · 給 2026/11/17 的課堂使用</p>
+    <p class="muted small">進度只存在你自己的瀏覽器裡。簽名牆上的內容是公開的，請不要放個人資料。</p>
+  </footer>
+
+  <!-- TA panel -->
+  <aside class="ta-panel" id="ta-panel" aria-label="助教面板" hidden>
+    <div class="ta-head">
+      <b>🎓 助教模式</b>
+      <button class="icon-btn small" type="button" id="ta-min" aria-label="縮小" title="縮小／展開">–</button>
+      <button class="icon-btn small" type="button" id="ta-close" aria-label="關閉助教模式">✕</button>
+    </div>
+    <div class="ta-body" id="ta-body">
+      <div class="ta-clock">
+        <div class="ta-seg-name" id="ta-seg-name">準備開始</div>
+        <div class="ta-time" id="ta-time">05:00</div>
+        <div class="ta-total muted small" id="ta-total">總計 0:00 / 30:00</div>
+        <div class="ta-bar"><span id="ta-bar"></span></div>
+        <div class="ta-btns">
+          <button class="btn btn-small btn-primary" type="button" id="ta-start">開始</button>
+          <button class="btn btn-small btn-ghost" type="button" id="ta-next">下一段 ⏭</button>
+          <button class="btn btn-small btn-ghost" type="button" id="ta-reset">重設</button>
+        </div>
+      </div>
+      <ol class="ta-segs" id="ta-segs"></ol>
+      <details class="ta-prep">
+        <summary>課前準備清單 <span id="ta-prep-n"></span></summary>
+        <ul class="checklist compact" id="ta-prep"></ul>
+      </details>
+      <p class="muted small">快速鍵：<kbd>T</kbd> 開關助教模式、<kbd>N</kbd> 下一段、<kbd>Space</kbd>（在面板上）開始／暫停。網址加上 <code>#ta</code> 會自動開啟。</p>
+    </div>
+  </aside>
+
+  <!-- Commit detail -->
+  <div class="pop" id="commit-pop" role="dialog" aria-modal="false" aria-labelledby="pop-title" hidden>
+    <button class="icon-btn small pop-close" type="button" aria-label="關閉">✕</button>
+    <div id="pop-body"></div>
+  </div>
+
+  <!-- File editor -->
+  <div class="modal" id="editor" role="dialog" aria-modal="true" aria-labelledby="editor-title" hidden>
+    <div class="modal-card">
+      <div class="modal-head"><h3 id="editor-title">編輯檔案</h3><button class="icon-btn small" type="button" data-close aria-label="關閉">✕</button></div>
+      <p class="muted small" id="editor-hint"></p>
+      <textarea id="editor-text" spellcheck="false" rows="12"></textarea>
+      <div class="modal-actions">
+        <button class="btn btn-small btn-ghost" type="button" data-close>取消</button>
+        <button class="btn btn-small btn-primary" type="button" id="editor-save">儲存</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toasts" id="toasts" aria-live="polite"></div>
+  <canvas id="confetti" aria-hidden="true"></canvas>
+
+  <script src="assets/config.js"></script>
+  <script src="assets/git-engine.js"></script>
+  <script src="assets/graph.js"></script>
+  <script src="assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,44 @@
+# Builds wall.json from wall/*.txt and deploys the site to GitHub Pages on every push to main.
+# One-time setup: Settings → Pages → Source: "GitHub Actions" (org-setup/setup_org.sh does this).
+name: Deploy site
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Many wall PRs get merged within minutes: queue deploys, newest wins, never cancel a running one.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0   # full history: each wall entry's time is its last commit
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Build site
+        run: |
+          mkdir -p _site
+          cp -r index.html assets wall.sample.json _site/
+          python scripts/build_wall.py wall _site/wall.json
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v4
