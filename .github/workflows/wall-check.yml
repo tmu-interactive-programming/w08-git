@@ -1,12 +1,15 @@
 # Checks class-wall PRs: only wall/<PR author>.txt may change, and the message must be short.
 #
-# Security: pull_request_target runs this workflow and its script from the BASE branch, so a PR
-# can't rewrite the check. The PR's files are only fetched and read as data with git — never
-# executed — and the token is read-only.
+# Trigger: plain pull_request. (pull_request_target is blocked by GitHub's default policy for
+# public repos from 2026-12-02, with brownouts before that.) The check script is still taken from
+# the BASE commit and the PR's files are only read as data with git — never executed — and the
+# token is read-only. Caveat: under pull_request the workflow FILE comes from the PR, so a PR that
+# edits .github/workflows/ could skip the check. Students can merge their own wall PRs, so the TA
+# should glance at merged PRs that touch anything outside wall/ (and revert if needed).
 name: wall-check
 
 on:
-  pull_request_target:
+  pull_request:
     types: [opened, synchronize, reopened, edited]
 
 permissions:

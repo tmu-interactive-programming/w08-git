@@ -1,7 +1,7 @@
 """
 Checks a class-wall pull request: it may only add or edit wall/<PR author>.txt, with a short message.
 
-Runs from the *base* branch under pull_request_target, so a PR cannot change the rules it is
+The workflow runs this script from the *base* commit, so a PR cannot change the rules it is
 checked against. The PR's files are only read as data through git (never executed).
 
 Usage: python scripts/check_wall_pr.py BASE_SHA HEAD_SHA PR_AUTHOR

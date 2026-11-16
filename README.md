@@ -42,7 +42,7 @@ python3 -m http.server 8000
 
 ```
 學生開 PR：新增 wall/<帳號>.txt
-  └─ wall-check（pull_request_target）：只能動自己的檔案、≤80 字、不能有網址／學號／HTML
+  └─ wall-check（pull_request）：只能動自己的檔案、≤80 字、不能有網址／學號／HTML
        └─ ✅ → 學生自己按 Merge（main 規則：要 PR + wall-check 通過，0 個 approve）
             └─ Deploy site（push 到 main）：scripts/build_wall.py 產生 wall.json → GitHub Pages
                  └─ 網頁每 20 秒抓一次 wall.json，新卡片飛上牆
@@ -50,7 +50,7 @@ python3 -m http.server 8000
 
 - 不在瀏覽器呼叫 GitHub API：全班 42 人共用教室 IP，很快就會撞到 API 限額。只抓同網域的靜態 `wall.json`。
 - 每人一個檔案 → 42 個 PR 彼此不會衝突。
-- `wall-check` 用 `pull_request_target`，所以檢查程式來自 main，PR 改不了規則；PR 的檔案只用 git 當資料讀，不會被執行。
+- `wall-check` 用 `pull_request`（GitHub 從 2026-12-02 起預設封鎖公開 repo 的 `pull_request_target`）。檢查程式從 base commit 取出，PR 的檔案只用 git 當資料讀，不會被執行。但 workflow 檔本身來自 PR，所以改了 `.github/workflows/` 的 PR 理論上能繞過檢查：學生可以自己合併簽名牆 PR，助教偶爾看一下有沒有動到 `wall/` 以外的檔案。
 - `build_wall.py` 會跳過不合規的檔案，所以就算有人繞過檢查，網頁也不會壞。
 - 短時間內大量合併時，Pages 部署會排隊、只保留最新一次，大約 1 分鐘內更新。
 
